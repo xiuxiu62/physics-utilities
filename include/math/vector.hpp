@@ -68,11 +68,11 @@ struct Vec2 {
     }
 
     inline constexpr Vec2 operator/(const f32 s) const {
-        return {x - s, y - s};
+        return {x / s, y / s};
     }
 
     inline constexpr Vec2 operator/(const Vec2 &v) const {
-        return {x - v.x, y - v.y};
+        return {x / v.x, y / v.y};
     }
 
     inline void operator/=(const f32 s) {

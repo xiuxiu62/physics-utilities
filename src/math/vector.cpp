@@ -21,9 +21,11 @@ f32 Vec2::length() const {
 
 Vec2 Vec2::normalize() const {
     f32 len = length();
-    f32 inv_len = 1.0f / (len + EPSILON);
-    f32 scale = len * inv_len;
-    return {x * inv_len * scale, y * inv_len * scale};
+    if (len < EPSILON) {
+        return Vec2::ZERO(); // Return zero vector if length is nearly zero
+    }
+    f32 inv_len = 1.0f / len;
+    return {x * inv_len, y * inv_len};
 }
 
 // Vec3
@@ -49,9 +51,11 @@ f32 Vec3::length() const {
 
 Vec3 Vec3::normalize() const {
     f32 len = length();
-    f32 inv_len = 1.0f / (len + EPSILON);
-    f32 scale = len * inv_len;
-    return {x * inv_len * scale, y * inv_len * scale, z * inv_len * scale};
+    if (len < EPSILON) {
+        return Vec3::ZERO(); // Return zero vector if length is nearly zero
+    }
+    f32 inv_len = 1.0f / len;
+    return {x * inv_len, y * inv_len, z * inv_len};
 }
 
 // Vec4
@@ -69,7 +73,8 @@ f32 Vec4::length() const {
 
 Vec4 Vec4::normalize() const {
     f32 len = length();
-    f32 inv_len = 1.0f / (len + EPSILON);
-    f32 scale = len * inv_len;
-    return {x * inv_len * scale, y * inv_len * scale, z * inv_len, w * inv_len};
+    if (len < EPSILON) return Vec4::ZERO(); // Return zero vector if length is nearly zero
+
+    f32 inv_len = 1.0f / len;
+    return {x * inv_len, y * inv_len, z * inv_len, w * inv_len};
 }
