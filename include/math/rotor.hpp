@@ -1,6 +1,7 @@
-#pragma onceo
+#pragma once
 
-#include "vector.hpp"
+#include "vec2.hpp"
+#include "vec3.hpp"
 #include <cmath>
 
 struct Rot2 {

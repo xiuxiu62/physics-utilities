@@ -1,8 +1,9 @@
 #pragma once
 
+#include "common/types.hpp"
 #include "math/rotor.hpp"
-#include "math/vector.hpp"
-#include "types.hpp"
+#include "math/vec2.hpp"
+#include "math/vec3.hpp"
 
 enum class BodyKind { Kinematic, Dynamic };
 

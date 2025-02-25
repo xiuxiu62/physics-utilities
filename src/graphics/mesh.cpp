@@ -1,62 +1,15 @@
-#pragma once
-
-#include "math/vector.hpp"
+#include "graphics/mesh.hpp"
+#include "graphics/shapes.hpp"
 #include <cstddef>
 #include <cstdlib>
-#include <glad/glad.h>
-
-enum class AttributeKind {
-    FLOAT,
-    VEC2,
-    VEC3,
-    VEC4,
-    INT,
-    IVEC2,
-    IVEC3,
-    IVEC4,
-    UINT,
-    BOOL,
-};
+#include <cstring>
 
 struct AttributeKindMeta {
     u32 size;
     GLenum type;
 };
 
-struct VertexAttribute {
-    const char *name;
-    AttributeKind kind;
-    usize location;
-    usize offset;
-    bool normalized;
-};
-
-struct Vertex {
-    Vec3 position;
-    Vec3 normal;
-    Vec2 uv;
-    // Vec4 color;
-
-    static constexpr usize FIELD_COUNT = 3;
-};
-
-struct Mesh {
-    Vertex *vertices;
-    usize vertex_count;
-
-    u32 *indices;
-    usize index_count;
-
-    VertexAttribute *attributes;
-    usize attribute_count;
-
-    u32 vao, vbo, ebo;
-
-    bool built;
-    usize vertex_size; // Size of vertex structure in bytes
-};
-
-AttributeKindMeta get_attr_kind_meta(AttributeKind kind);
+static AttributeKindMeta get_attr_kind_meta(AttributeKind kind);
 
 void init_mesh(Mesh &mesh) {
     mesh = {
@@ -76,9 +29,21 @@ void init_mesh(Mesh &mesh) {
     mesh.attribute_count = Vertex::FIELD_COUNT;
     mesh.attributes = (VertexAttribute *)malloc(mesh.attribute_count * sizeof(VertexAttribute));
 
+    // struct Vertex {
+    //     Vec3 position;
+    //     Vec3 normal;
+    //     Vec2 uv0;
+    //     Vec4 tangent;
+    //     Vec4 color;
+
+    //     static constexpr usize FIELD_COUNT = 3;
+    // };
+
     mesh.attributes[0] = {"position", AttributeKind::VEC3, 0, offsetof(Vertex, position), false};
     mesh.attributes[1] = {"normal", AttributeKind::VEC3, 1, offsetof(Vertex, normal), false};
-    mesh.attributes[2] = {"uv", AttributeKind::VEC2, 2, offsetof(Vertex, uv), false};
+    mesh.attributes[2] = {"uv0", AttributeKind::VEC2, 2, offsetof(Vertex, uv0), false};
+    mesh.attributes[3] = {"tangent", AttributeKind::VEC4, 3, offsetof(Vertex, tangent), false};
+    mesh.attributes[4] = {"color", AttributeKind::VEC4, 4, offsetof(Vertex, color), false};
 }
 
 void deinit_mesh(Mesh &mesh) {
@@ -138,11 +103,58 @@ void set_indices(Mesh &mesh, u32 *indices, usize count) {
     mesh.index_count = count;
 }
 
-void add_custom_attribute(Mesh &mesh, const char *name, VertexAttribute attr) {
+void add_attribute(Mesh &mesh, const char *name, AttributeKind kind, int location = -1, usize offset = SIZE_MAX,
+                   bool normalized = false) {
+    // Duplicate the attribute name to avoid dangling pointers
+    char *name_copy = strdup(name);
+    if (!name_copy) {
+        // error("[Mesh] Failed to copy name \"%s\"", name);
+        return;
+    }
+
+    // Resize attributes array
+    usize new_index = mesh.attribute_count;
     mesh.attribute_count++;
     mesh.attributes = (VertexAttribute *)realloc(mesh.attributes, mesh.attribute_count * sizeof(VertexAttribute));
-    mesh.attributes[mesh.attribute_count - 1] = attr;
+
+    // Determine location if not specified
+    if (location < 0) {
+        // Use the attribute count as the location (assumes sequential binding)
+        location = new_index;
+    }
+
+    // Determine offset if not specified
+    if (offset == SIZE_MAX) {
+        if (new_index > 0) {
+            // Calculate based on previous attribute
+            VertexAttribute &prev = mesh.attributes[new_index - 1];
+            AttributeKindMeta prev_meta = get_attr_kind_meta(prev.kind);
+            offset = prev.offset + prev_meta.size * sizeof(float);
+        } else {
+            // First attribute starts at offset 0
+            offset = 0;
+        }
+    }
+
+    // Add the new attribute
+    mesh.attributes[new_index] = {name_copy, kind, (usize)location, offset, normalized};
+
+    // Update vertex size if needed
+    AttributeKindMeta meta = get_attr_kind_meta(kind);
+    usize attr_end = offset + meta.size * (meta.type == GL_FLOAT ? sizeof(float) : sizeof(int));
+    if (attr_end > mesh.vertex_size) {
+        mesh.vertex_size = attr_end;
+    }
+
+    // Mark mesh as needing to be rebuilt
+    mesh.built = false;
 }
+
+// void add_attribute(Mesh &mesh, const char *name, AttributeKind kind, usize location, usize offset, bool normalized) {
+//     mesh.attribute_count++;
+//     mesh.attributes = (VertexAttribute *)realloc(mesh.attributes, mesh.attribute_count * sizeof(VertexAttribute));
+//     mesh.attributes[mesh.attribute_count - 1] = attr;
+// }
 
 void build_mesh(Mesh &mesh) {
     if (mesh.vertex_count == 0 || !mesh.vertices) {
@@ -227,6 +239,16 @@ void update_mesh_vertices(Mesh &mesh, Vertex *vertices, usize count) {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
+
+// Mesh generate_mesh_from_shape(Triangle shape) {
+//     Mesh mesh{0};
+//     memcpy(mesh.vertices, shape.vertices, 3 * sizeof(Vec2));
+//     mesh.vertices[0].position mesh.vertex_count = 3;
+
+//     static constexpr u32 indices[3]{0, 1, 2};
+//     memcpy(mesh.indices, indices, 3 * sizeof(u32));
+//     mesh.index_count = 3;
+// }
 
 static AttributeKindMeta get_attr_kind_meta(AttributeKind kind) {
     AttributeKindMeta meta;

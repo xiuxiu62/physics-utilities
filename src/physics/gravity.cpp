@@ -1,6 +1,6 @@
 #include "physics/gravity.hpp"
+#include "common/types.hpp"
 #include "math/constants.hpp"
-#include "types.hpp"
 
 const float GRAVITATIONAL_CONSTANT = 6.674e-11;
 const float GRAVITATIONAL_FACTOR = 1.0e2;
