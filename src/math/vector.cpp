@@ -1,5 +1,5 @@
-#include "math/vector.hpp"
 #include "math/constants.hpp"
+#include "math/vector.hpp"
 #include <cmath>
 
 // Vec2
@@ -77,4 +77,10 @@ Vec4 Vec4::normalize() const {
 
     f32 inv_len = 1.0f / len;
     return {x * inv_len, y * inv_len, z * inv_len, w * inv_len};
+}
+
+Vec3 project_4d_to_3d(const Vec4 &point, float w_distance) {
+    // Simple perspective projection
+    float factor = 1.0f / (w_distance - point.w);
+    return {point.x * factor, point.y * factor, point.z * factor};
 }

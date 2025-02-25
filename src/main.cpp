@@ -2,7 +2,7 @@
 #include <iostream>
 
 const float dt = 0.016f; // ~60fps
-const int NUM_STEPS = 100000;
+const int NUM_STEPS = 1000000;
 
 // Print helper functions
 void print_body_state(const Body2 &body, const char *label) {
@@ -57,12 +57,12 @@ void test_2d_physics() {
         integrate_physics(bodies, NUM_BODIES, dt);
 
         // Print state every 50 steps
-        if (step % 50 == 0) {
-            std::cout << "\nStep " << step << ":" << std::endl;
-            print_body_state(bodies[0], "Sun");
-            print_body_state(bodies[1], "Planet");
-            print_body_state(bodies[2], "Photon");
-        }
+        // if (step % 50 == 0) {
+        //     std::cout << "\nStep " << step << ":" << std::endl;
+        //     print_body_state(bodies[0], "Sun");
+        //     print_body_state(bodies[1], "Planet");
+        //     print_body_state(bodies[2], "Photon");
+        // }
     }
 
     std::cout << "\nFinal state:" << std::endl;
@@ -110,12 +110,12 @@ void test_3d_physics() {
         integrate_physics(bodies, NUM_BODIES, dt);
 
         // Print state every 50 steps
-        if (step % 50 == 0) {
-            std::cout << "\nStep " << step << ":" << std::endl;
-            print_body_state(bodies[0], "Sun");
-            print_body_state(bodies[1], "Planet");
-            print_body_state(bodies[2], "Photon");
-        }
+        // if (step % 50 == 0) {
+        //     std::cout << "\nStep " << step << ":" << std::endl;
+        //     print_body_state(bodies[0], "Sun");
+        //     print_body_state(bodies[1], "Planet");
+        //     print_body_state(bodies[2], "Photon");
+        // }
     }
 
     std::cout << "\nFinal state:" << std::endl;
