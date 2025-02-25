@@ -1,6 +1,9 @@
 #include "physics/gravity.hpp"
 #include <iostream>
 
+const float dt = 0.016f; // ~60fps
+const int NUM_STEPS = 100000;
+
 // Print helper functions
 void print_body_state(const Body2 &body, const char *label) {
     std::cout << label << " - Pos: (" << body.transform.position.x << ", " << body.transform.position.y << "), Vel: ("
@@ -44,9 +47,6 @@ void test_2d_physics() {
     bodies[2].dampening.linear = 0.0f;
 
     // Run simulation for several steps
-    const float dt = 0.016f; // ~60fps
-    const int NUM_STEPS = 300;
-
     std::cout << "Initial state:" << std::endl;
     print_body_state(bodies[0], "Sun");
     print_body_state(bodies[1], "Planet");
@@ -100,9 +100,6 @@ void test_3d_physics() {
     bodies[2].dampening.linear = 0.0f;
 
     // Run simulation for several steps
-    const float dt = 0.016f; // ~60fps
-    const int NUM_STEPS = 300;
-
     std::cout << "Initial state:" << std::endl;
     print_body_state(bodies[0], "Sun");
     print_body_state(bodies[1], "Planet");
